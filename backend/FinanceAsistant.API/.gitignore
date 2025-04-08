@@ -1,0 +1,8 @@
+﻿bin/
+obj/
+*.user
+*.db
+.vscode/
+.env
+appsettings.json
+appsettings.Local.json
