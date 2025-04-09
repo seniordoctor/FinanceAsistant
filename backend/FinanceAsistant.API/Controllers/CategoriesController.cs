@@ -8,11 +8,11 @@ namespace FinanceAsistant.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class CategoryController : ControllerBase
+public class CategoriesController : ControllerBase
 {
     private readonly FinanceDbContext _context;
 
-    public CategoryController(FinanceDbContext context)
+    public CategoriesController(FinanceDbContext context)
     {
         _context = context;
     }
@@ -25,6 +25,28 @@ public class CategoryController : ControllerBase
             .ThenBy(c => c.Name)
             .ToListAsync();
         
+        return Ok(categories);
+    }
+    
+    [HttpGet("income/{userId}")]
+    public async Task<IActionResult> GetIncomeCategoriesByUserId(int userId)
+    {
+        var categories = await _context.Categories
+            .Where(c => c.Type == "Income" && (c.UserId == null || c.UserId == userId))
+            .OrderBy(c => c.Name)
+            .ToListAsync();
+
+        return Ok(categories);
+    }
+    
+    [HttpGet("expense/{userId}")]
+    public async Task<IActionResult> GetExpenseCategoriesByUserId(int userId)
+    {
+        var categories = await _context.Categories
+            .Where(c => c.Type == "Expense" && (c.UserId == null || c.UserId == userId))
+            .OrderBy(c => c.Name)
+            .ToListAsync();
+
         return Ok(categories);
     }
 

@@ -33,7 +33,7 @@ public class ExpensesController : ControllerBase
                 Date = e.Date.ToUniversalTime()
             })
             .ToListAsync();
-        
+
         return Ok(expenses);
     }
 
@@ -43,7 +43,7 @@ public class ExpensesController : ControllerBase
         var today = DateTime.Today;
         var firstOfMonth = new DateTime(today.Year, today.Month, 1);
         var nextMonth = firstOfMonth.AddMonths(1);
-        
+
         var result = await _context.Expenses
             .Include(e => e.Category)
             .Where(e => e.Date >= firstOfMonth && e.Date < nextMonth)
@@ -55,8 +55,19 @@ public class ExpensesController : ControllerBase
             })
             .OrderByDescending(x => x.TotalAmount)
             .ToListAsync();
-        
+
         return Ok(result);
+    }
+
+    [HttpGet("user/{userId}")]
+    public async Task<IActionResult> GetExpenseByUser(int userId)
+    {
+        var expenses = await _context.Expenses
+            .Where(e => e.UserId == userId)
+            .OrderByDescending(e => e.Date)
+            .ToListAsync();
+
+        return Ok(expenses);
     }
 
     [HttpPost]
@@ -70,10 +81,10 @@ public class ExpensesController : ControllerBase
             Description = dto.Description,
             Date = dto.Date.ToUniversalTime()
         };
-        
+
         _context.Expenses.Add(expense);
         await _context.SaveChangesAsync();
-        
+
         return CreatedAtAction(nameof(GetAllExpenses), new { id = expense.Id }, expense);
     }
 }

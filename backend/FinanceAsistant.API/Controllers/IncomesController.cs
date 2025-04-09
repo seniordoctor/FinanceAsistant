@@ -37,6 +37,17 @@ public class IncomesController : ControllerBase
         return Ok(incomes);
     }
 
+    [HttpGet("user/{userId}")]
+    public async Task<IActionResult> GetIncomesByUser(int userId)
+    {
+        var incomes = await _context.Incomes
+            .Where(i => i.UserId == userId)
+            .OrderByDescending(i => i.Date)
+            .ToListAsync();
+        
+        return Ok(incomes);
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] IncomeCreateDto dto)
     {

@@ -22,7 +22,7 @@ namespace FinanceAsistant.API.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("FinanceAsistant.API.Entities.Category", b =>
+            modelBuilder.Entity("Category", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -35,9 +35,10 @@ namespace FinanceAsistant.API.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Type")
+                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("UserId")
+                    b.Property<int?>("UserId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -63,7 +64,7 @@ namespace FinanceAsistant.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("Date")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
@@ -95,7 +96,7 @@ namespace FinanceAsistant.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("Date")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
@@ -124,7 +125,7 @@ namespace FinanceAsistant.API.Migrations
                         .HasColumnType("numeric");
 
                     b.Property<DateTime>("StartDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -152,7 +153,7 @@ namespace FinanceAsistant.API.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -161,6 +162,12 @@ namespace FinanceAsistant.API.Migrations
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<bool>("IsAdmin")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsApproved")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -174,20 +181,9 @@ namespace FinanceAsistant.API.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("FinanceAsistant.API.Entities.Category", b =>
-                {
-                    b.HasOne("FinanceAsistant.API.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("FinanceAsistant.API.Entities.Expense", b =>
                 {
-                    b.HasOne("FinanceAsistant.API.Entities.Category", "Category")
+                    b.HasOne("Category", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -206,7 +202,7 @@ namespace FinanceAsistant.API.Migrations
 
             modelBuilder.Entity("FinanceAsistant.API.Entities.Income", b =>
                 {
-                    b.HasOne("FinanceAsistant.API.Entities.Category", "Category")
+                    b.HasOne("Category", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)

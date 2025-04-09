@@ -1,8 +1,6 @@
-﻿namespace FinanceAsistant.API.DTOs;
-
-public class CategoryCreateDto
+﻿public class CategoryCreateDto
 {
-    public int UserId { get; set; }
-    public string Name { get; set; }
-    public string Type { get; set; } // Income or Expense
+    public string Name { get; set; } = null!;
+    public string Type { get; set; } = null!; // "Income" / "Expense"
+    public int? UserId { get; set; } // 👈 bu şekilde olmalı
 }

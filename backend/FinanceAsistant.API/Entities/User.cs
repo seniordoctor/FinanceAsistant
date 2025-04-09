@@ -7,6 +7,8 @@ public class User
     public string Email { get; set; }
     public string PasswordHash { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public bool IsApproved { get; set; } = false;
+    public bool IsAdmin { get; set; } = false;
 
     public ICollection<Income> Incomes { get; set; } = new List<Income>();
     public ICollection<Expense> Expenses { get; set; } = new List<Expense>();
