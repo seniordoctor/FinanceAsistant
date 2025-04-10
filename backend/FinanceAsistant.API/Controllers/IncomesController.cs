@@ -48,6 +48,38 @@ public class IncomesController : ControllerBase
         return Ok(incomes);
     }
 
+    [HttpGet("summary/{userId}")]
+    public async Task<IActionResult> GetIncomeSummaryByUserId(int userId)
+    {
+        var total = await _context.Incomes
+            .Where(i => i.UserId == userId)
+            .SumAsync(i => i.Amount);
+        
+        return Ok(new { totalIncome = total });
+    }
+    
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetIncomeById(int id)
+    {
+        var income = await _context.Incomes.FindAsync(id);
+        if (income == null) return NotFound();
+
+        return Ok(income);
+    }
+    
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteIncome(int id)
+    {
+        var income = await _context.Incomes.FindAsync(id);
+        if (income == null)
+            return NotFound();
+
+        _context.Incomes.Remove(income);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] IncomeCreateDto dto)
     {

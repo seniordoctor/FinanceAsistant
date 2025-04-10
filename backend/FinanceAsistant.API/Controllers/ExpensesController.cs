@@ -1,6 +1,7 @@
 ﻿using FinanceAsistant.API.Data;
 using FinanceAsistant.API.DTOs;
 using FinanceAsistant.API.Entities;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -70,6 +71,25 @@ public class ExpensesController : ControllerBase
         return Ok(expenses);
     }
 
+    [HttpGet("summary/{userId}")]
+    public async Task<IActionResult> GetExpenseSummaryByUserId(int userId)
+    {
+        var total = await _context.Expenses
+            .Where(e => e.UserId == userId)
+            .SumAsync(e => e.Amount);
+
+        return Ok(new { totalExpense = total });
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetExpenseById(int id)
+    {
+        var expense = await _context.Expenses.FindAsync(id);
+        if (expense == null) return NotFound();
+
+        return Ok(expense);
+    }
+
     [HttpPost]
     public async Task<IActionResult> AddExpense([FromBody] ExpenseCreateDto dto)
     {
@@ -86,5 +106,18 @@ public class ExpensesController : ControllerBase
         await _context.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetAllExpenses), new { id = expense.Id }, expense);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteExpense(int id)
+    {
+        var expense = await _context.Expenses.FindAsync(id);
+        if (expense == null)
+            return NotFound();
+
+        _context.Expenses.Remove(expense);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
     }
 }
