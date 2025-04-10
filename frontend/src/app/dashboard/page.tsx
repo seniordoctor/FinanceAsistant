@@ -3,105 +3,166 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-interface Income {
-  id: number;
-  amount: number;
-  date: string;
-}
-
-interface Expense {
-  id: number;
-  amount: number;
-  date: string;
-}
-
-export default function DashboardPage() {
+export default function Dashboard() {
   const router = useRouter();
-  const [fullName, setFullName] = useState("");
-  const [totalIncome, setTotalIncome] = useState(0);
-  const [totalExpense, setTotalExpense] = useState(0);
+  const [income, setIncome] = useState(0);
+  const [expense, setExpense] = useState(0);
+  const [installment, setInstallment] = useState(0);
+  const [incomeList, setIncomeList] = useState<any[]>([]);
+  const [expenseList, setExpenseList] = useState<any[]>([]);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    const name = localStorage.getItem("fullName");
-    const userId = localStorage.getItem("userId");
+  const userId =
+    typeof window !== "undefined" ? localStorage.getItem("userId") : null;
 
-    if (!token || !userId) {
-      router.push("/login");
-    } else {
-      setFullName(name || "");
-      fetchDashboardData(userId || "");
-    }
-  }, [router]);
+  const handleDeleteIncome = async (id: number) => {
+    const confirm = window.confirm("Bu geliri silmek istediğine emin misin?");
+    if (!confirm) return;
+    
 
-  const fetchDashboardData = async (userId: string) => {
-    try {
-      const [incomeRes, expenseRes] = await Promise.all([
-        fetch(`http://localhost:5264/api/incomes/user/${userId}`),
-        fetch(`http://localhost:5264/api/expenses/user/${userId}`)
-      ]);
-
-      const incomes: Income[] = await incomeRes.json();
-      const expenses: Expense[] = await expenseRes.json();
-
-      const thisMonth = new Date().getMonth();
-      const thisYear = new Date().getFullYear();
-
-      const monthlyIncome = incomes
-        .filter(i => new Date(i.date).getMonth() === thisMonth && new Date(i.date).getFullYear() === thisYear)
-        .reduce((sum, i) => sum + i.amount, 0);
-
-      const monthlyExpense = expenses
-        .filter(e => new Date(e.date).getMonth() === thisMonth && new Date(e.date).getFullYear() === thisYear)
-        .reduce((sum, e) => sum + e.amount, 0);
-
-      setTotalIncome(monthlyIncome);
-      setTotalExpense(monthlyExpense);
-    } catch (err) {
-      console.error("Veri çekilemedi:", err);
-    }
+    await fetch(`http://localhost:5264/api/incomes/${id}`, {
+      method: "DELETE",
+    });
+    setIncomeList((prev) => prev.filter((x) => x.id !== id));
   };
 
+  const handleDeleteExpense = async (id: number) => {
+    const confirm = window.confirm("Bu gideri silmek istediğine emin misin?");
+    if (!confirm) return;
+  
+    await fetch(`http://localhost:5264/api/expenses/${id}`, { method: "DELETE" });
+    setExpenseList((prev) => prev.filter((x) => x.id !== id));
+  };  
+
+  useEffect(() => {
+    if (!userId) return;
+
+    fetch(`http://localhost:5264/api/incomes/summary/${userId}`)
+      .then((res) => res.json())
+      .then((data) => setIncome(data.totalIncome || 0));
+
+    fetch(`http://localhost:5264/api/expenses/summary/${userId}`)
+      .then((res) => res.json())
+      .then((data) => setExpense(data.totalExpense || 0));
+
+    fetch(`http://localhost:5264/api/installments/monthly/${userId}`)
+      .then((res) => res.json())
+      .then((data) => setInstallment(data.monthlyInstallment || 0));
+
+    fetch(`http://localhost:5264/api/incomes/user/${userId}`)
+      .then((res) => res.json())
+      .then((data) => setIncomeList(data));
+
+    fetch(`http://localhost:5264/api/expenses/user/${userId}`)
+      .then((res) => res.json())
+      .then((data) => setExpenseList(data));
+  }, [userId]);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 to-purple-200 flex flex-col items-center py-10 px-4">
-      <h1 className="text-3xl font-bold text-gray-800 mb-8">🎉 Hoş geldin {fullName}!</h1>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-3xl">
-        <div className="bg-white p-6 rounded-xl shadow-md text-center">
-          <h2 className="text-xl font-semibold text-gray-700 mb-2">Bu Ayki Toplam Gelir</h2>
-          <p className="text-2xl text-green-600 font-bold">{totalIncome.toLocaleString()} ₺</p>
+    <div className="min-h-screen bg-gradient-to-b from-gray-100 to-white px-6 py-10">
+      <h1 className="text-3xl font-bold text-gray-800 mb-8">
+        📊 Finansal Durum
+      </h1>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
+        {/* Gelir */}
+        <div className="bg-green-500 text-white p-6 rounded-xl shadow-lg hover:brightness-105 transition duration-200">
+          <h2 className="text-xl font-semibold mb-2">💰 Toplam Gelir</h2>
+          <p className="text-2xl font-bold">
+            {income.toLocaleString("tr-TR")} ₺
+          </p>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-md text-center">
-          <h2 className="text-xl font-semibold text-gray-700 mb-2">Bu Ayki Toplam Gider</h2>
-          <p className="text-2xl text-red-600 font-bold">{totalExpense.toLocaleString()} ₺</p>
+        {/* Gider */}
+        <div className="bg-red-500 text-white p-6 rounded-xl shadow-lg hover:brightness-105 transition duration-200">
+          <h2 className="text-xl font-semibold mb-2">💸 Toplam Gider</h2>
+          <p className="text-2xl font-bold">
+            {expense.toLocaleString("tr-TR")} ₺
+          </p>
+        </div>
+
+        {/* Taksit */}
+        <div className="bg-blue-500 text-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition duration-200">
+          <h2 className="text-xl font-semibold mb-2">📆 Bu Ayki Taksit</h2>
+          <p className="text-2xl font-bold">
+            {installment.toLocaleString("tr-TR")} ₺
+          </p>
         </div>
       </div>
-      <button
-        onClick={() => {
-          localStorage.clear(); // tüm token, isim, id vs. temizle
-          router.push("/login"); // login sayfasına yönlendir
-        }}
-        className="absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
-      >
-        Çıkış Yap
-      </button>
-      <div className="mt-6">
-        <button
-          onClick={() => router.push("/add-income")}
-          className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded"
-        >
-          ➕ Gelir Ekle
-        </button>
-      </div>
-      <div className="mt-6">
-        <button
-          onClick={() => router.push("/add-expense")}
-          className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 rounded"
-        >
-          ➕ Gider Ekle
-        </button>
-      </div>
+      {/* Buraya gelir/gider listeleri ve düzenleme butonları gelecek */}
+      <section className="mt-10 space-y-8">
+        {/* GELİRLER */}
+        <div>
+          <h3 className="text-xl font-bold text-gray-700 mb-4">💰 Gelirler</h3>
+          <ul className="space-y-2">
+            {incomeList.map((item) => (
+              <li
+                key={item.id}
+                className="flex items-center justify-between bg-white p-4 rounded-lg shadow hover:shadow-md transition"
+              >
+                <div>
+                  <p className="text-gray-800 font-medium">
+                    {item.categoryName}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {item.amount.toLocaleString("tr-TR")} ₺ —{" "}
+                    {new Date(item.date).toLocaleDateString("tr-TR")}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => router.push(`/edit-income/${item.id}`)}
+                    className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-600 hover:text-white transition"
+                  >
+                    Düzenle
+                  </button>
+                  <button
+                    onClick={() => handleDeleteIncome(item.id)}
+                    className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-600 hover:text-white transition"
+                  >
+                    Sil
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* GİDERLER (aynı yapı, başka state) */}
+        <div>
+          <h3 className="text-xl font-bold text-gray-700 mb-4">💸 Giderler</h3>
+          <ul className="space-y-2">
+            {expenseList.map((item) => (
+              <li
+                key={item.id}
+                className="flex items-center justify-between bg-white p-4 rounded-lg shadow hover:shadow-md transition"
+              >
+                <div>
+                  <p className="text-gray-800 font-medium">
+                    {item.categoryName}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {item.amount.toLocaleString("tr-TR")} ₺ —{" "}
+                    {new Date(item.date).toLocaleDateString("tr-TR")}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => router.push(`/edit-expense/${item.id}`)}
+                    className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-600 hover:text-white transition"
+                  >
+                    Düzenle
+                  </button>
+                  <button
+                    onClick={() => handleDeleteExpense(item.id)}
+                    className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-600 hover:text-white transition"
+                  >
+                    Sil
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
     </div>
   );
 }

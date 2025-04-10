@@ -28,7 +28,7 @@ export default function AddExpensePage() {
       return;
     }
 
-    fetch(`http://localhost:5264/api/category/expense/${userId}`)
+    fetch(`http://localhost:5264/api/categories/expense/${userId}`)
       .then(res => res.json())
       .then(data => setCategories(data))
       .catch(() => setCategories([]));
@@ -37,7 +37,7 @@ export default function AddExpensePage() {
   const handleNewCategorySubmit = async () => {
     if (!newCategoryName.trim()) return;
 
-    const res = await fetch("http://localhost:5264/api/category", {
+    const res = await fetch("http://localhost:5264/api/categories", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -66,7 +66,7 @@ export default function AddExpensePage() {
       return;
     }
 
-    const res = await fetch("http://localhost:5264/api/expense", {
+    const res = await fetch("http://localhost:5264/api/expenses", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

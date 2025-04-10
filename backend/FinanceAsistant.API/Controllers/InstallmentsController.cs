@@ -1,6 +1,7 @@
 ﻿using FinanceAsistant.API.Data;
 using FinanceAsistant.API.DTOs;
 using FinanceAsistant.API.Entities;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,11 +9,11 @@ namespace FinanceAsistant.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class InstallmentController : ControllerBase
+public class InstallmentsController : ControllerBase
 {
     private readonly FinanceDbContext _context;
 
-    public InstallmentController(FinanceDbContext context)
+    public InstallmentsController(FinanceDbContext context)
     {
         _context = context;
     }
@@ -79,6 +80,22 @@ public class InstallmentController : ControllerBase
             .ToListAsync();
         
         return Ok(result);
+    }
+
+    [HttpGet("monthly/{userId}")]
+    public async Task<IActionResult> GetMonthlyInstallmentByUserId(int userId)
+    {
+        var today = DateTime.UtcNow;
+        
+        var total = await _context.Installments
+            .Where(i => i.UserId == userId)
+            .Where(i =>
+                i.StartDate <= today &&
+                i.StartDate.AddMonths(i.TotalMonths) > today
+                )
+            .SumAsync(i => i.MonthlyAmount);
+
+        return Ok(new { monthlyInstallment = total });
     }
 
     [HttpPost]
