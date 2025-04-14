@@ -89,6 +89,35 @@ public class ExpensesController : ControllerBase
 
         return Ok(expense);
     }
+    
+    [HttpGet("monthly/{userId}")]
+    public async Task<IActionResult> GetThisMonthsExpenses(int userId)
+    {
+        var now = DateTime.UtcNow;
+        var month = now.Month;
+        var year = now.Year;
+
+        var total = await _context.Expenses
+            .Where(e => e.UserId == userId && e.Date.Month == month && e.Date.Year == year)
+            .SumAsync(e => e.Amount);
+        
+        return Ok(new { monthlyExpense = total });
+    }
+    
+    [HttpGet("by-category/{userId}")]
+    public async Task<IActionResult> GetExpensesByCategory(int userId)
+    {
+        var result = await _context.Expenses
+            .Where(e => e.UserId == userId)
+            .GroupBy(e => e.Category.Name)
+            .Select(g => new {
+                CategoryName = g.Key,
+                TotalAmount = g.Sum(e => e.Amount)
+            })
+            .ToListAsync();
+
+        return Ok(result);
+    }
 
     [HttpPost]
     public async Task<IActionResult> AddExpense([FromBody] ExpenseCreateDto dto)
@@ -107,6 +136,26 @@ public class ExpensesController : ControllerBase
 
         return CreatedAtAction(nameof(GetAllExpenses), new { id = expense.Id }, expense);
     }
+    
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateExpense(int id, [FromBody] ExpenseUpdateDto dto)
+    {
+        if (id != dto.Id)
+            return BadRequest();
+
+        var expense = await _context.Expenses.FindAsync(id);
+        if (expense == null)
+            return NotFound();
+
+        expense.Amount = dto.Amount;
+        expense.CategoryId = dto.CategoryId;
+        expense.Description = dto.Description;
+        expense.Date = dto.Date;
+
+        await _context.SaveChangesAsync();
+        return NoContent();
+    }
+
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteExpense(int id)

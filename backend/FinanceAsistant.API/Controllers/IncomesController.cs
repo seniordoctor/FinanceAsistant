@@ -44,7 +44,7 @@ public class IncomesController : ControllerBase
             .Where(i => i.UserId == userId)
             .OrderByDescending(i => i.Date)
             .ToListAsync();
-        
+
         return Ok(incomes);
     }
 
@@ -54,10 +54,10 @@ public class IncomesController : ControllerBase
         var total = await _context.Incomes
             .Where(i => i.UserId == userId)
             .SumAsync(i => i.Amount);
-        
+
         return Ok(new { totalIncome = total });
     }
-    
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetIncomeById(int id)
     {
@@ -66,18 +66,34 @@ public class IncomesController : ControllerBase
 
         return Ok(income);
     }
-    
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteIncome(int id)
+
+    [HttpGet("monthly/{userId}")]
+    public async Task<IActionResult> GetThisMonthsIncomes(int userId)
     {
-        var income = await _context.Incomes.FindAsync(id);
-        if (income == null)
-            return NotFound();
+        var now = DateTime.UtcNow;
+        var month = now.Month;
+        var year = now.Year;
 
-        _context.Incomes.Remove(income);
-        await _context.SaveChangesAsync();
+        var total = await _context.Incomes
+            .Where(i => i.UserId == userId && i.Date.Month == month && i.Date.Year == year)
+            .SumAsync(i => i.Amount);
+        
+        return Ok(new { monthlyIncome = total });
+    }
+    
+    [HttpGet("by-category/{userId}")]
+    public async Task<IActionResult> GetIncomesByCategory(int userId)
+    {
+        var result = await _context.Incomes
+            .Where(i => i.UserId == userId)
+            .GroupBy(i => i.Category.Name)
+            .Select(g => new {
+                CategoryName = g.Key,
+                TotalAmount = g.Sum(i => i.Amount)
+            })
+            .ToListAsync();
 
-        return NoContent();
+        return Ok(result);
     }
 
     [HttpPost]
@@ -96,5 +112,38 @@ public class IncomesController : ControllerBase
         await _context.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetAllIncomes), new { id = income.Id }, income);
+    }
+    
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateIncome(int id, [FromBody] IncomeUpdateDto dto)
+    {
+        if (id != dto.Id)
+            return BadRequest();
+
+        var income = await _context.Incomes.FindAsync(id);
+        if (income == null)
+            return NotFound();
+
+        income.Amount = dto.Amount;
+        income.CategoryId = dto.CategoryId;
+        income.Description = dto.Description;
+        income.Date = dto.Date;
+
+        await _context.SaveChangesAsync();
+        return NoContent();
+    }
+
+    
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteIncome(int id)
+    {
+        var income = await _context.Incomes.FindAsync(id);
+        if (income == null)
+            return NotFound();
+
+        _context.Incomes.Remove(income);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
     }
 }

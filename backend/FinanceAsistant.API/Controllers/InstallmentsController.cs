@@ -97,6 +97,29 @@ public class InstallmentsController : ControllerBase
 
         return Ok(new { monthlyInstallment = total });
     }
+    
+    [HttpGet("monthly/details/{userId}")]
+    public async Task<IActionResult> GetActiveInstallmentDetails(int userId)
+    {
+        var now = DateTime.UtcNow;
+
+        var installments = await _context.Installments
+            .Where(i =>
+                i.UserId == userId &&
+                i.StartDate <= now &&
+                i.StartDate.AddMonths(i.TotalMonths) > now
+            )
+            .Select(i => new {
+                i.Title,
+                i.MonthlyAmount,
+                i.StartDate,
+                i.TotalMonths
+            })
+            .ToListAsync();
+
+        return Ok(installments);
+    }
+
 
     [HttpPost]
     public async Task<IActionResult> AddInstallment([FromBody] InstallmentCreateDto dto)
