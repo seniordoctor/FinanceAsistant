@@ -1,6 +1,6 @@
 # 💸 FinanceAsistant
 
-Kişisel finans yönetimi için geliştirilmiş web tabanlı bir uygulamadır. Gelir, gider ve taksitlerinizi kolayca takip etmenizi sağlar. Ayrıca size özel yatırım tavsiyeleri sunar.
+Kişisel finans yönetimi için geliştirilmiş web tabanlı bir uygulamadır. Gelir, gider ve taksitlerinizi kolayca takip etmenizi sağlar. Ayrıca size özel yatırım tavsiyeleri sunar. Lütfen şunu unutmayın: ben bir Backend Developer'ım o sebepten Frontend becerilerime kızmayın :D
 
 ## 🚀 Özellikler
 
