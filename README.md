@@ -1,74 +1,50 @@
 # 💸 FinanceAsistant
 
-Kişisel finanslarınızı yönetmenizi sağlayan bir web uygulamasıdır.  
-.NET 8 Web API (Backend) + Next.js 14 (Frontend) stack'i kullanılarak geliştirilmiştir.
-
----
+Kişisel finans yönetimi için geliştirilmiş web tabanlı bir uygulamadır. Gelir, gider ve taksitlerinizi kolayca takip etmenizi sağlar. Ayrıca size özel yatırım tavsiyeleri sunar.
 
 ## 🚀 Özellikler
 
-- JWT ile kullanıcı giriş/çıkış sistemi (admin onaylı)
-- Gelir / Gider takibi (kategori bazlı)
-- Taksit ekleme ve takvim takibi
-- Kişisel + genel kategori sistemi
-- Kullanıcı bazlı özet ekranlar (dashboard)
-- PostgreSQL veritabanı kullanımı
+- 👤 Kullanıcı kayıt ve giriş sistemi (Admin onaylı)
+- 📊 Dashboard: Toplam gelir, gider ve aylık özet
+- 📝 Gelir/Gider ekleme, düzenleme, silme
+- 📅 Taksit ekleme ve aylık ödeme takibi
+- 📈 Kategori bazlı dağılım grafikleri (Pie Chart)
+- 🤖 AI destekli yatırım tavsiyeleri (statik akıllı öneriler)
+- 📱 Responsive frontend (Next.js + TailwindCSS)
+
+## 🛠️ Kullanılan Teknolojiler
+
+**Backend**
+- ASP.NET Core 8
+- EF Core + PostgreSQL
+- FluentValidation
+- JWT Authentication
+- Entity DTO Mapping
+
+**Frontend**
+- Next.js (App Router)
+- TailwindCSS
+- Recharts (grafikler)
+- LocalStorage tabanlı oturum kontrolü
 
 ---
 
-## 📁 Proje Yapısı
+## 🧪 Kurulum ve Çalıştırma
 
-FinanceAsistant/ │ ├── backend/FinanceAsistant.API/ │ ├── Controllers/ │ ├── DTOs/ │ ├── Entities/ │ ├── Services/ │ └── FinanceDbContext.cs │ ├── frontend/ (Next.js + Tailwind) │ ├── app/ │ └── public/
+### Backend
 
+1. `cd backend/FinanceAsistant.API`
+2. `dotnet restore`
+3. `dotnet ef database update`
+4. `dotnet run`
+
+> **Not:** `appsettings.json` içinde PostgreSQL bağlantı bilgilerini güncellemeyi unutma.
+
+### Frontend
+
+1. `cd frontend` (örneğin: `FinanceAsistant`)
+2. `npm install`
+3. `npm run dev`
 ---
 
-## ⚙️ Kurulum
-
-### 🧱 Gereksinimler
-
-- [.NET 8 SDK](https://dotnet.microsoft.com/en-us/download)
-- [Node.js (18+)](https://nodejs.org/)
-- [PostgreSQL](https://www.postgresql.org/download/)
-- (Opsiyonel) [Rider](https://www.jetbrains.com/rider/) veya [Visual Studio Code](https://code.visualstudio.com/)
-
----
-
-### 1️⃣ Backend Kurulumu (.NET)
-
-```bash
-cd backend/FinanceAsistant.API
-dotnet restore
-dotnet ef database update
-dotnet run
-```
-
-Swagger otomatik açılır: http://localhost:5264/swagger
-
----
-
-### 2️⃣ Frontend Kurulumu (Next.js)
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Açılan uygulama: http://localhost:3000
-
----
-
-#### 🔐 Kullanıcı Girişi
-Kullanıcılar sadece admin onayı sonrası giriş yapabilir.
-
-Giriş sonrası JWT token localStorage’a kaydedilir.
-
----
-
-📦 Ortam Değişkenleri
-.env.local dosyasına frontend için:
-
-```ini
-NEXT_PUBLIC_API_BASE=http://localhost:5264
-```
-Backend için gerekirse appsettings.json üzerinden ConnectionStrings.DefaultConnection güncellenebilir.
-
+Made with ❤️ by [Doctor](https://github.com/seniordoctor)
