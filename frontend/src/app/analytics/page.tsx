@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { useRouter } from "next/navigation";
 import AdviceCard from "./AdviceCard";
 
 const COLORS = [
@@ -19,13 +20,17 @@ interface CategoryData {
 }
 
 export default function AnalyticsPage() {
+  const router = useRouter();
   const [expenseData, setExpenseData] = useState<CategoryData[]>([]);
   const [incomeData, setIncomeData] = useState<CategoryData[]>([]);
   const userId =
     typeof window !== "undefined" ? localStorage.getItem("userId") : null;
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId) {
+      router.push("/login");
+      return;
+    }
 
     fetch(`http://localhost:5264/api/expenses/by-category/${userId}`)
       .then((res) => res.json())
@@ -34,7 +39,7 @@ export default function AnalyticsPage() {
     fetch(`http://localhost:5264/api/incomes/by-category/${userId}`)
       .then((res) => res.json())
       .then((data) => setIncomeData(data));
-  }, [userId]);
+  }, [userId, router]);
 
   const renderPieWithLegend = (data: CategoryData[], title: string) => (
     <div className="bg-white p-6 rounded-xl shadow-md w-full">

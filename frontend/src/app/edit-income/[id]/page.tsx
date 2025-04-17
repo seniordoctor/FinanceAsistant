@@ -16,6 +16,11 @@ export default function EditIncomePage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (!userId) {
+      router.push("/login");
+      return;
+    }
+
     // Gelir detayını çek
     fetch(`http://localhost:5264/api/incomes/${id}`)
       .then((res) => res.json())
@@ -30,7 +35,7 @@ export default function EditIncomePage() {
     fetch(`http://localhost:5264/api/categories/income/${userId}`)
       .then((res) => res.json())
       .then((data) => setCategories(data));
-  }, [id, userId]);
+  }, [id, userId, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

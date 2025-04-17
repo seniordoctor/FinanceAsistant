@@ -29,8 +29,8 @@ export default function AddIncomePage() {
     }
 
     fetch(`http://localhost:5264/api/categories/income/${userId}`)
-      .then(res => res.json())
-      .then(data => setCategories(data))
+      .then((res) => res.json())
+      .then((data) => setCategories(data))
       .catch(() => setCategories([]));
   }, [userId, router]);
 
@@ -43,7 +43,7 @@ export default function AddIncomePage() {
       body: JSON.stringify({
         name: newCategoryName,
         type: "Income",
-        userId: parseInt(userId!)
+        userId: parseInt(userId!),
       }),
     });
 
@@ -74,7 +74,7 @@ export default function AddIncomePage() {
         amount: parseFloat(amount),
         categoryId: parseInt(categoryId),
         description,
-        date
+        date,
       }),
     });
 
@@ -89,8 +89,13 @@ export default function AddIncomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-100 to-blue-100 flex items-center justify-center px-4">
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-xl shadow-md w-full max-w-md space-y-4">
-        <h2 className="text-2xl font-bold text-gray-800 text-center">💰 Gelir Ekle</h2>
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-6 rounded-xl shadow-md w-full max-w-md space-y-4"
+      >
+        <h2 className="text-2xl font-bold text-gray-800 text-center">
+          💰 Gelir Ekle
+        </h2>
 
         {error && <p className="text-red-600 text-sm">{error}</p>}
 
@@ -150,12 +155,22 @@ export default function AddIncomePage() {
           className="w-full p-3 bg-gray-50 border border-gray-300 rounded text-gray-800"
         />
 
-        <button
-          type="submit"
-          className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
-        >
-          Kaydet
-        </button>
+        <div className="flex justify-between gap-4">
+          <button
+            type="button"
+            onClick={() => router.push("/dashboard")}
+            className="w-1/2 bg-gray-200 text-gray-800 py-2 rounded hover:bg-gray-300 transition"
+          >
+            İptal
+          </button>
+
+          <button
+            type="submit"
+            className="w-1/2 bg-green-600 text-white py-2 rounded hover:bg-green-700 transition"
+          >
+            Kaydet
+          </button>
+        </div>
       </form>
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function AddInstallmentPage() {
@@ -13,6 +13,13 @@ export default function AddInstallmentPage() {
   const [startDate, setStartDate] = useState("");
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!userId) {
+      router.push("/login");
+      return;
+    }
+  }, [userId, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,12 +105,22 @@ export default function AddInstallmentPage() {
           className="w-full p-3 bg-gray-50 border border-gray-300 rounded text-gray-800 placeholder-gray-500"
         />
 
-        <button
-          type="submit"
-          className="w-full bg-purple-600 text-white py-2 rounded hover:bg-purple-700"
-        >
-          Kaydet
-        </button>
+        <div className="flex justify-between gap-4">
+          <button
+            type="button"
+            onClick={() => router.push("/dashboard")}
+            className="w-1/2 bg-gray-200 text-gray-800 py-2 rounded hover:bg-gray-300 transition"
+          >
+            İptal
+          </button>
+
+          <button
+            type="submit"
+            className="w-1/2 bg-green-600 text-white py-2 rounded hover:bg-green-700 transition"
+          >
+            Kaydet
+          </button>
+        </div>
       </form>
     </div>
   );
